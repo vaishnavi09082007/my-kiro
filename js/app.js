@@ -654,6 +654,9 @@ const wireSettingsPage = () => {
     document.documentElement.setAttribute('data-theme', theme);
     const settings = TFStorage.getSettings();
     TFStorage.saveSettings({ ...settings, theme });
+    // Destroy and re-render charts with new theme colours
+    TFDashboard.destroyCharts();
+    TFDashboard.refreshDashboard();
     TFUI.showToast(`Switched to ${theme} theme.`, 'info');
   });
 

@@ -314,7 +314,7 @@ const calcStats = (tasks) => {
   const todayTasks = all.filter(t => t.dueDate === today);
   const pending    = all.filter(t => t.status !== 'completed');
 
-  // Upcoming: due in next 7 days, not overdue, not completed
+  // Upcoming: due in next 7 days (from now), not already overdue, not completed
   const now     = new Date();
   const in7days = new Date(now.getTime() + 7 * 24 * 3600 * 1000);
   const upcoming = all.filter(t => {
@@ -323,16 +323,22 @@ const calcStats = (tasks) => {
     return d && d > now && d <= in7days;
   });
 
+  // This week: tasks with dueDate within Mon–Sun of current week
+  const { getWeekDays, dateToString } = window.TFUtils;
+  const weekDays   = getWeekDays(now).map(d => dateToString(d));
+  const thisWeek   = all.filter(t => t.dueDate && weekDays.includes(t.dueDate));
+
   return {
-    total:      all.length,
-    completed:  completed.length,
-    pending:    pending.length,
-    overdue:    overdue.length,
-    highPri:    highPri.length,
-    today:      todayTasks.length,
-    upcoming:   upcoming.length,
-    percentage: completionPercentage(all),
-    todayList:  todayTasks,
+    total:        all.length,
+    completed:    completed.length,
+    pending:      pending.length,
+    overdue:      overdue.length,
+    highPri:      highPri.length,
+    today:        todayTasks.length,
+    upcoming:     upcoming.length,
+    thisWeek:     thisWeek.length,
+    percentage:   completionPercentage(all),
+    todayList:    todayTasks,
     upcomingList: upcoming,
     overdueList:  overdue,
   };
