@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TaskFlow – Smart Task Manager and Schedule Planner" />
+  <title>TaskFlow – Smart Task Manager</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <!-- Chart.js (pinned version) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous" defer></script>
+
+  <!-- Extra schedule task styles (inlined here to keep component file clean) -->
+  <style>
+    .schedule-task {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-tertiary);
+      cursor: pointer;
+      font-size: var(--font-size-xs);
+      border-left: 3px solid var(--color-border);
+      transition: background-color 0.15s ease;
+    }
+    .schedule-task:hover { background-color: var(--color-bg-primary); }
+    .schedule-task:focus-visible { outline: 2px solid var(--color-accent); }
+    .schedule-task--low    { border-left-color: var(--color-success); }
+    .schedule-task--medium { border-left-color: var(--color-warning); }
+    .schedule-task--high   { border-left-color: var(--color-danger); }
+    .schedule-task--overdue   { background-color: var(--color-danger-light); }
+    .schedule-task--completed { opacity: 0.5; }
+    .schedule-task__time  { color: var(--color-text-muted); min-width: 42px; flex-shrink: 0; }
+    .schedule-task__info  { flex: 1; overflow: hidden; }
+    .schedule-task__title { font-weight: var(--font-weight-medium); color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .schedule-task__cat   { color: var(--color-text-muted); font-size: 10px; }
+    .schedule-day-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
+    .schedule-day-name    { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); }
+    .schedule-tasks-list  { display: flex; flex-direction: column; gap: var(--space-2); }
+  </style>
+</head>
+
+<body>
+  <!-- ── App Shell ───────────────────────────────────────── -->
+  <div class="app-shell">
+
+    <!-- ── Sidebar ─────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="sidebar__logo">
+        <span class="sidebar__logo-icon" aria-hidden="true">⚡</span>
+        <span class="sidebar__logo-text">TaskFlow</span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <ul role="list">
+          <li>
+            <button class="nav-item active" data-section="section-dashboard" aria-current="page">
+              <span class="nav-item__icon" aria-hidden="true">📊</span>
+              <span class="nav-item__label">Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-section="section-tasks">
+              <span class="nav-item__icon" aria-hidden="true">✅</span>
+              <span class="nav-item__label">Tasks</span>
+              <span class="nav-item__badge hidden" id="overdue-badge" aria-label="overdue tasks">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-section="section-schedule">
+              <span class="nav-item__icon" aria-hidden="true">📅</span>
+              <span class="nav-item__label">Schedule</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-section="section-completed">
+              <span class="nav-item__icon" aria-hidden="true">🏆</span>
+              <span class="nav-item__label">Completed</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-section="section-settings">
+              <span class="nav-item__icon" aria-hidden="true">⚙️</span>
+              <span class="nav-item__label">Settings</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button class="sidebar__collapse-btn" id="sidebar-collapse-btn" aria-expanded="true" aria-label="Collapse sidebar">
+          <span aria-hidden="true">◀</span>
+          <span class="sidebar__collapse-btn-label">Collapse</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ── Page Wrapper ────────────────────────────────── -->
+    <div class="page-wrapper" id="page-wrapper">
+
+      <!-- ── Header ────────────────────────────────────── -->
+      <header class="app-header" role="banner">
+        <button class="header__menu-btn" id="header-menu-btn" aria-label="Open navigation menu" aria-controls="sidebar">
+          ☰
+        </button>
+
+        <h1 class="header__title" id="header-title">Dashboard</h1>
+
+        <div class="header__search" role="search">
+          <span class="header__search-icon" aria-hidden="true">🔍</span>
+          <label for="header-search" class="sr-only">Search tasks</label>
+          <input type="search"
+                 id="header-search"
+                 class="header__search-input"
+                 placeholder="Search tasks…"
+                 aria-label="Search tasks"
+                 autocomplete="off" />
+        </div>
+
+        <div class="header__actions">
+          <time class="header__date" id="header-date" aria-live="off"></time>
+
+          <div class="notif-bell">
+            <button class="btn btn--icon" id="notif-bell-btn" aria-label="Notifications">
+              🔔
+            </button>
+            <span class="notif-bell__dot" style="display:none" aria-hidden="true"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ── Main Content ───────────────────────────────── -->
+      <main class="main-content" id="main-content" role="main" tabindex="-1">
+
+        <!-- ══ DASHBOARD ══════════════════════════════════ -->
+        <section class="page-section active" id="section-dashboard" aria-labelledby="dash-heading">
+          <div class="page-section__header">
+            <div>
+              <h2 class="page-section__title" id="dash-heading">Dashboard</h2>
+              <p class="page-section__subtitle">Your productivity at a glance</p>
+            </div>
+          </div>
+
+          <!-- Stat cards -->
+          <div class="stats-grid" role="list" aria-label="Task statistics">
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--total" aria-hidden="true">📋</div>
+              <div class="stat-card__value" id="stat-total">0</div>
+              <div class="stat-card__label">Total Tasks</div>
+            </article>
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--done" aria-hidden="true">✅</div>
+              <div class="stat-card__value" id="stat-completed">0</div>
+              <div class="stat-card__label">Completed</div>
+            </article>
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--pending" aria-hidden="true">⏳</div>
+              <div class="stat-card__value" id="stat-pending">0</div>
+              <div class="stat-card__label">Pending</div>
+            </article>
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--overdue" aria-hidden="true">🚨</div>
+              <div class="stat-card__value" id="stat-overdue">0</div>
+              <div class="stat-card__label">Overdue</div>
+            </article>
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--high" aria-hidden="true">🔴</div>
+              <div class="stat-card__value" id="stat-high">0</div>
+              <div class="stat-card__label">High Priority</div>
+            </article>
+            <article class="stat-card" role="listitem">
+              <div class="stat-card__icon stat-card__icon--today" aria-hidden="true">☀️</div>
+              <div class="stat-card__value" id="stat-today">0</div>
+              <div class="stat-card__label">Due Today</div>
+            </article>
+          </div>
+
+          <!-- Completion progress -->
+          <div class="content-card" style="margin-bottom:var(--space-5)">
+            <div class="progress-label">
+              <span class="content-card__title" style="margin:0">Overall Completion</span>
+              <span id="stat-pct" style="font-weight:var(--font-weight-bold);color:var(--color-accent)">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar__fill" id="progress-fill" style="width:0%" role="progressbar"
+                   aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Completion percentage">
+              </div>
+            </div>
+            <p id="progress-pct" class="sr-only">0% complete</p>
+          </div>
+
+          <!-- Today / Upcoming / Overdue lists -->
+          <div class="dashboard-row">
+            <div class="content-card">
+              <h3 class="content-card__title">Today's Tasks</h3>
+              <div class="task-list-compact" id="dash-today-list" aria-label="Today's tasks"></div>
+            </div>
+            <div class="content-card">
+              <h3 class="content-card__title">Upcoming (Next 7 Days)</h3>
+              <div class="task-list-compact" id="dash-upcoming-list" aria-label="Upcoming tasks"></div>
+            </div>
+          </div>
+
+          <div class="content-card" style="margin-bottom:var(--space-5)">
+            <h3 class="content-card__title">Overdue Tasks</h3>
+            <div class="task-list-compact" id="dash-overdue-list" aria-label="Overdue tasks"></div>
+          </div>
+
+          <!-- Charts -->
+          <div class="chart-grid">
+            <div class="chart-card">
+              <h3 class="chart-card__title">This Week – Created vs Completed</h3>
+              <canvas id="weekly-chart" aria-label="Weekly task chart" role="img"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3 class="chart-card__title">Tasks by Category</h3>
+              <canvas id="category-chart" aria-label="Category distribution chart" role="img"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ TASKS ══════════════════════════════════════ -->
+        <section class="page-section" id="section-tasks" aria-labelledby="tasks-heading">
+          <div class="page-section__header">
+            <div>
+              <h2 class="page-section__title" id="tasks-heading">Tasks</h2>
+              <p class="page-section__subtitle">Manage all your tasks</p>
+            </div>
+            <button class="btn btn--primary" id="add-task-btn" aria-label="Add new task">
+              + Add Task
+            </button>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="filter-bar" role="group" aria-label="Filter and sort tasks">
+            <span class="filter-bar__label" id="filter-label">Filter:</span>
+
+            <label for="filter-status" class="sr-only">Filter by status</label>
+            <select id="filter-status" class="form-select" aria-labelledby="filter-label">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+            </select>
+
+            <label for="filter-priority" class="sr-only">Filter by priority</label>
+            <select id="filter-priority" class="form-select">
+              <option value="all">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+
+            <label for="filter-category" class="sr-only">Filter by category</label>
+            <select id="filter-category" class="form-select">
+              <option value="all">All Categories</option>
+            </select>
+
+            <span class="filter-bar__label" style="margin-left:auto">Sort:</span>
+
+            <label for="sort-field" class="sr-only">Sort by</label>
+            <select id="sort-field" class="form-select">
+              <option value="dueDate">Due Date</option>
+              <option value="priority">Priority</option>
+              <option value="title">Title</option>
+              <option value="createdAt">Date Created</option>
+            </select>
+
+            <label for="sort-dir" class="sr-only">Sort direction</label>
+            <select id="sort-dir" class="form-select">
+              <option value="asc">↑ Asc</option>
+              <option value="desc">↓ Desc</option>
+            </select>
+          </div>
+
+          <!-- Task list -->
+          <ul class="task-grid" id="task-list" aria-label="Task list" aria-live="polite"></ul>
+        </section>
+
+        <!-- ══ SCHEDULE ════════════════════════════════════ -->
+        <section class="page-section" id="section-schedule" aria-labelledby="sched-heading">
+          <div class="page-section__header">
+            <div>
+              <h2 class="page-section__title" id="sched-heading">Schedule</h2>
+              <p class="page-section__subtitle" id="schedule-nav-label"></p>
+            </div>
+            <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+              <button class="btn btn--ghost btn--sm" id="schedule-prev-btn" aria-label="Previous">◀ Prev</button>
+              <button class="btn btn--secondary btn--sm" id="schedule-today-btn">Today</button>
+              <button class="btn btn--ghost btn--sm" id="schedule-next-btn" aria-label="Next">Next ▶</button>
+              <div style="width:1px;background:var(--color-border);margin:0 4px"></div>
+              <button class="btn btn--ghost btn--sm" id="schedule-view-day">Day</button>
+              <button class="btn btn--primary btn--sm" id="schedule-view-week">Week</button>
+            </div>
+          </div>
+
+          <div id="schedule-content" aria-live="polite"></div>
+        </section>
+
+        <!-- ══ COMPLETED ═══════════════════════════════════ -->
+        <section class="page-section" id="section-completed" aria-labelledby="comp-heading">
+          <div class="page-section__header">
+            <h2 class="page-section__title" id="comp-heading">Completed Tasks</h2>
+          </div>
+          <ul class="task-grid" id="completed-task-list" aria-label="Completed tasks" aria-live="polite"></ul>
+        </section>
+
+        <!-- ══ SETTINGS ════════════════════════════════════ -->
+        <section class="page-section" id="section-settings" aria-labelledby="settings-heading">
+          <div class="page-section__header">
+            <h2 class="page-section__title" id="settings-heading">Settings</h2>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section__title">Appearance</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row__label">Light Theme</div>
+                <div class="settings-row__desc">Switch between dark and light mode</div>
+              </div>
+              <label class="toggle" aria-label="Toggle light theme">
+                <input type="checkbox" class="toggle__input" id="settings-theme" role="switch" />
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section__title">Tasks</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row__label">Default Priority</div>
+                <div class="settings-row__desc">Used when creating new tasks</div>
+              </div>
+              <label for="settings-default-priority" class="sr-only">Default task priority</label>
+              <select id="settings-default-priority" class="form-select" style="width:120px">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section__title">Notifications</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row__label">Browser Notifications</div>
+                <div class="settings-row__desc" id="settings-notif-status">Checking…</div>
+              </div>
+              <button class="btn btn--secondary btn--sm" id="settings-notif-btn">
+                Enable Notifications
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section__title">Data</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row__label">Clear All Data</div>
+                <div class="settings-row__desc">Permanently delete all tasks and settings</div>
+              </div>
+              <button class="btn btn--danger btn--sm" id="settings-clear-btn">Clear Data</button>
+            </div>
+          </div>
+        </section>
+
+      </main><!-- /main-content -->
+    </div><!-- /page-wrapper -->
+  </div><!-- /app-shell -->
+
+  <!-- ── Toast Container ──────────────────────────────────── -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ══ TASK MODAL ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="task-modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="task-modal-title" aria-hidden="true">
+    <div class="modal" id="task-modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="task-modal-title">Add New Task</h2>
+        <button class="btn btn--icon" id="task-modal-close" aria-label="Close modal">✕</button>
+      </div>
+
+      <form class="modal__body" id="task-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="task-title">Title <span class="required" aria-hidden="true">*</span></label>
+          <input type="text" id="task-title" name="title" class="form-input"
+                 placeholder="What needs to be done?" maxlength="200" required
+                 aria-required="true" aria-describedby="task-title-error" />
+          <span class="form-error" id="task-title-error" data-error="title" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="task-description">Description</label>
+          <textarea id="task-description" name="description" class="form-textarea"
+                    placeholder="Add details (optional)" maxlength="1000"
+                    aria-describedby="task-description-error"></textarea>
+          <span class="form-error" id="task-description-error" data-error="description" role="alert"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="task-priority">Priority <span class="required" aria-hidden="true">*</span></label>
+            <select id="task-priority" name="priority" class="form-select" required aria-required="true"
+                    aria-describedby="task-priority-error">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+            <span class="form-error" id="task-priority-error" data-error="priority" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="task-category">Category</label>
+            <input type="text" id="task-category" name="category" class="form-input"
+                   placeholder="e.g. Work, Personal" maxlength="50"
+                   aria-describedby="task-category-error" />
+            <span class="form-error" id="task-category-error" data-error="category" role="alert"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="task-dueDate">Due Date</label>
+            <input type="date" id="task-dueDate" name="dueDate" class="form-input"
+                   aria-describedby="task-dueDate-error" />
+            <span class="form-error" id="task-dueDate-error" data-error="dueDate" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="task-dueTime">Due Time</label>
+            <input type="time" id="task-dueTime" name="dueTime" class="form-input"
+                   aria-describedby="task-dueTime-error task-dueTime-hint" />
+            <span class="form-hint" id="task-dueTime-hint">Requires a due date</span>
+            <span class="form-error" id="task-dueTime-error" data-error="dueTime" role="alert"></span>
+          </div>
+        </div>
+
+        <!-- Hidden submit button so Enter key submits -->
+        <button type="submit" style="display:none" aria-hidden="true">Save</button>
+      </form>
+
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="task-modal-cancel">Cancel</button>
+        <button type="submit" form="task-form" class="btn btn--primary" id="task-modal-save">
+          Save Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CONFIRM DELETE MODAL ══════════════════════════════ -->
+  <div class="modal-overlay" id="confirm-modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="confirm-modal-title" aria-hidden="true">
+    <div class="modal confirm-dialog" id="confirm-modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="confirm-modal-title">Confirm Delete</h2>
+        <button class="btn btn--icon" id="confirm-modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal__body">
+        <p id="confirm-message">Are you sure you want to delete this task?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn--danger" id="confirm-delete-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── JavaScript modules (order matters) ──────────────── -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/countdown.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/schedule.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
