@@ -597,6 +597,12 @@ const wireSchedulePage = () => {
     updateScheduleViewBtns();
     renderScheduleView();
   });
+
+  // Handle "show more" overflow day navigation
+  document.addEventListener('taskflow:schedule-day', (e) => {
+    updateScheduleViewBtns();
+    renderScheduleView();
+  });
 };
 
 const updateScheduleViewBtns = () => {
@@ -627,10 +633,15 @@ const renderScheduleView = () => {
   const navLabel = document.getElementById('schedule-nav-label');
   if (navLabel) {
     const { dateToString, formatDate, formatWeekRange, getWeekDays } = TFUtils;
+    const todayStr = TFUtils.todayString();
     if (state.view === 'day') {
-      navLabel.textContent = formatDate(dateToString(state.currentDate));
+      const ds = dateToString(state.currentDate);
+      const isToday = ds === todayStr;
+      navLabel.textContent = isToday ? 'Today – ' + formatDate(ds) : formatDate(ds);
     } else {
-      navLabel.textContent = formatWeekRange(getWeekDays(state.currentDate));
+      const days = getWeekDays(state.currentDate);
+      const isCurrent = days.some(d => dateToString(d) === todayStr);
+      navLabel.textContent = (isCurrent ? 'Current week – ' : '') + formatWeekRange(days);
     }
   }
 };
