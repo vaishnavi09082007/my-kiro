@@ -156,6 +156,22 @@ const wireHeader = () => {
         refreshTasksView();
       }
     });
+    // Handle native clear button on type="search"
+    searchInput.addEventListener('search', (e) => {
+      if (!e.target.value) {
+        _filters.search = '';
+        refreshTasksView();
+      }
+    });
+    // Escape clears search when focused
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        _filters.search = '';
+        refreshTasksView();
+        searchInput.blur();
+      }
+    });
   }
 
   // Notification bell
@@ -286,7 +302,7 @@ const handleTaskFormSubmit = (e) => {
     dueTime:     form.querySelector('[name="dueTime"]')?.value || null,
   };
 
-  // Strip empty strings to null
+  // Strip empty strings to null/empty
   if (!data.dueDate)  data.dueDate = null;
   if (!data.dueTime)  data.dueTime = null;
   if (!data.category) data.category = '';
@@ -294,13 +310,32 @@ const handleTaskFormSubmit = (e) => {
   const { valid, errors } = TFTasks.validateTask(data);
   if (!valid) {
     TFUI.showFormErrors(form, errors);
+    // Focus the first errored field
+    const firstErr = form.querySelector('[class*="--error"]');
+    if (firstErr) firstErr.focus();
     return;
   }
 
   let tasks = TFStorage.getTasks();
 
+  // Warn about past deadline (non-blocking)
+  if (data.dueDate) {
+    const deadline = TFUtils.parseDateTime(data.dueDate, data.dueTime);
+    if (deadline && deadline < new Date()) {
+      TFUI.showToast('Note: This task has a past deadline.', 'warning', 5000);
+    }
+  }
+
   if (_editingTaskId) {
-    // Update existing
+    // Warn if another task has an identical title (excluding self)
+    const duplicate = tasks.find(t =>
+      t.id !== _editingTaskId &&
+      t.title.trim().toLowerCase() === data.title.trim().toLowerCase()
+    );
+    if (duplicate) {
+      TFUI.showToast(`A task named "${data.title.trim()}" already exists.`, 'warning', 5000);
+    }
+
     TFNotifications.clearTaskNotifs(_editingTaskId);
     tasks = TFTasks.updateTask(tasks, _editingTaskId, {
       title:       data.title.trim(),
@@ -313,7 +348,14 @@ const handleTaskFormSubmit = (e) => {
     TFStorage.saveTasks(tasks);
     TFUI.showToast('Task updated.', 'success');
   } else {
-    // Create new
+    // Warn about duplicate title on create
+    const duplicate = tasks.find(t =>
+      t.title.trim().toLowerCase() === data.title.trim().toLowerCase()
+    );
+    if (duplicate) {
+      TFUI.showToast(`A task named "${data.title.trim()}" already exists.`, 'warning', 5000);
+    }
+
     const newTask = TFTasks.createTask(data);
     tasks = [...tasks, newTask];
     TFStorage.saveTasks(tasks);
@@ -330,17 +372,30 @@ let _deleteTargetId = null;
 
 const wireConfirmModal = () => {
   document.getElementById('confirm-cancel-btn')?.addEventListener('click', closeConfirmModal);
+  document.getElementById('confirm-modal-close')?.addEventListener('click', closeConfirmModal);
+
   document.getElementById('confirm-delete-btn')?.addEventListener('click', () => {
-    if (_deleteTargetId) {
-      let tasks = TFStorage.getTasks();
-      tasks = TFTasks.deleteTask(tasks, _deleteTargetId);
-      TFStorage.saveTasks(tasks);
-      TFNotifications.clearTaskNotifs(_deleteTargetId);
+    if (!_deleteTargetId) return;
+
+    if (_deleteTargetId === '__clear__') {
+      TFStorage.clearAll();
       closeConfirmModal();
       onTasksChanged();
-      TFUI.showToast('Task deleted.', 'success');
+      applyTheme();
+      TFUI.showToast('All data cleared.', 'info');
+      _deleteTargetId = null;
+      return;
     }
+
+    let tasks = TFStorage.getTasks();
+    tasks = TFTasks.deleteTask(tasks, _deleteTargetId);
+    TFStorage.saveTasks(tasks);
+    TFNotifications.clearTaskNotifs(_deleteTargetId);
+    closeConfirmModal();
+    onTasksChanged();
+    TFUI.showToast('Task deleted.', 'success');
   });
+
   document.getElementById('confirm-modal-overlay')?.addEventListener('click', (e) => {
     if (e.target.id === 'confirm-modal-overlay') closeConfirmModal();
   });
@@ -414,8 +469,27 @@ const refreshTasksView = () => {
   const allTasks  = TFStorage.getTasks();
   const filtered  = TFTasks.applyFilters(allTasks, _filters);
   const container = document.getElementById('task-list');
+
+  // Update count label
+  const countLabel = document.getElementById('tasks-count-label');
+  if (countLabel) {
+    const total = allTasks.length;
+    const shown = filtered.length;
+    if (_filters.search || _filters.status !== 'all' || _filters.priority !== 'all' || _filters.category !== 'all') {
+      countLabel.textContent = `Showing ${shown} of ${total} task${total !== 1 ? 's' : ''}`;
+    } else {
+      countLabel.textContent = `${total} task${total !== 1 ? 's' : ''} total`;
+    }
+  }
+
+  const emptyMsg = _filters.search
+    ? `No tasks match "${TFUtils.escapeHtml(_filters.search)}". Try a different search term.`
+    : (allTasks.length === 0
+        ? 'No tasks yet. Click "+ Add Task" to create your first task!'
+        : 'No tasks match your current filters. Try adjusting them.');
+
   if (container) {
-    TFUI.renderTaskList(container, filtered, 'No tasks match your current filters. Try adjusting them or add a new task.');
+    TFUI.renderTaskList(container, filtered, emptyMsg);
   }
   updateFilterCategoryOptions(allTasks);
   TFCountdown.restartCountdownTimer();
@@ -453,15 +527,47 @@ document.addEventListener('DOMContentLoaded', () => {
   bind('filter-category', 'category');
   bind('sort-field',      'sortField');
   bind('sort-dir',        'sortDir');
+
+  // Reset filters button
+  document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
+    _filters = { status: 'all', priority: 'all', category: 'all', search: '', sortField: 'dueDate', sortDir: 'asc' };
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    setVal('filter-status',   'all');
+    setVal('filter-priority', 'all');
+    setVal('filter-category', 'all');
+    setVal('sort-field',      'dueDate');
+    setVal('sort-dir',        'asc');
+    const searchInput = document.getElementById('header-search');
+    if (searchInput) searchInput.value = '';
+    refreshTasksView();
+  });
 });
 
 /* ── Completed Section ────────────────────────────────────── */
 
 const renderCompletedView = () => {
-  const tasks     = TFStorage.getTasks().filter(t => t.status === 'completed');
+  const allTasks  = TFStorage.getTasks();
+  const tasks     = allTasks
+    .filter(t => t.status === 'completed')
+    .sort((a, b) => {
+      // Most recently completed first
+      const da = new Date(a.completedAt || a.updatedAt);
+      const db = new Date(b.completedAt || b.updatedAt);
+      return db - da;
+    });
+
   const container = document.getElementById('completed-task-list');
+
+  // Update count in header
+  const heading = document.getElementById('comp-heading');
+  if (heading) heading.textContent = `Completed Tasks (${tasks.length})`;
+
   if (container) {
-    TFUI.renderTaskList(container, tasks, 'No completed tasks yet. Start checking things off!');
+    TFUI.renderTaskList(
+      container,
+      tasks,
+      'No completed tasks yet. Start checking things off!'
+    );
   }
 };
 
@@ -559,17 +665,6 @@ const wireSettingsPage = () => {
   document.getElementById('settings-clear-btn')?.addEventListener('click', () => {
     openConfirmModal('__clear__', 'ALL tasks and settings');
   });
-
-  // Override confirm delete for clear-all
-  document.getElementById('confirm-delete-btn')?.addEventListener('click', () => {
-    if (_deleteTargetId === '__clear__') {
-      TFStorage.clearAll();
-      closeConfirmModal();
-      onTasksChanged();
-      applyTheme();
-      TFUI.showToast('All data cleared.', 'info');
-    }
-  }, { once: false }); // note: primary handler already wired, this is an additional check
 };
 
 const renderSettingsPage = () => {

@@ -107,4 +107,14 @@ const clearAll = () => {
   }
 };
 
-window.TFStorage = { getTasks, saveTasks, getSettings, saveSettings, clearAll };
+/**
+ * Gets a single task by ID. Returns null if not found.
+ * @param {string} id
+ * @returns {object|null}
+ */
+const getTaskById = (id) => {
+  const tasks = getTasks();
+  return tasks.find(t => t.id === id) || null;
+};
+
+window.TFStorage = { getTasks, saveTasks, getTaskById, getSettings, saveSettings, clearAll };

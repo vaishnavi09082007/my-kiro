@@ -154,11 +154,13 @@ const renderTaskList = (container, tasks, emptyMessage = 'No tasks found.') => {
   container.innerHTML = '';
 
   if (!tasks || tasks.length === 0) {
+    const isFirstRun = emptyMessage.includes('first task');
     container.innerHTML = `
-      <li class="empty-state">
-        <div class="empty-state__emoji">📋</div>
-        <h3 class="empty-state__title">Nothing here</h3>
+      <li class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state__emoji">${isFirstRun ? '🚀' : '🔍'}</div>
+        <h3 class="empty-state__title">${isFirstRun ? 'No tasks yet' : 'Nothing here'}</h3>
         <p class="empty-state__text">${window.TFUtils.escapeHtml(emptyMessage)}</p>
+        ${isFirstRun ? '<button class="btn btn--primary" onclick="document.getElementById(\'add-task-btn\').click()">+ Add Your First Task</button>' : ''}
       </li>`;
     return;
   }

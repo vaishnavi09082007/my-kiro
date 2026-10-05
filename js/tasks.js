@@ -42,8 +42,11 @@ const validateTask = (data) => {
     if (!dateRe.test(data.dueDate)) {
       errors.dueDate = 'Invalid date format.';
     } else {
-      const d = new Date(data.dueDate + 'T00:00:00');
-      if (isNaN(d.getTime())) errors.dueDate = 'Invalid date.';
+      const [y, m, d] = data.dueDate.split('-').map(Number);
+      const parsed = new Date(y, m - 1, d);
+      if (isNaN(parsed.getTime()) || parsed.getMonth() !== m - 1) {
+        errors.dueDate = 'Invalid date.';
+      }
     }
   }
 
@@ -52,7 +55,12 @@ const validateTask = (data) => {
       errors.dueTime = 'Due time requires a due date.';
     } else {
       const timeRe = /^\d{2}:\d{2}$/;
-      if (!timeRe.test(data.dueTime)) errors.dueTime = 'Invalid time format (HH:MM).';
+      if (!timeRe.test(data.dueTime)) {
+        errors.dueTime = 'Invalid time format (HH:MM).';
+      } else {
+        const [h, m] = data.dueTime.split(':').map(Number);
+        if (h > 23 || m > 59) errors.dueTime = 'Invalid time value.';
+      }
     }
   }
 

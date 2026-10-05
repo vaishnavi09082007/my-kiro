@@ -233,7 +233,7 @@
           <div class="page-section__header">
             <div>
               <h2 class="page-section__title" id="tasks-heading">Tasks</h2>
-              <p class="page-section__subtitle">Manage all your tasks</p>
+              <p class="page-section__subtitle" id="tasks-count-label">Manage all your tasks</p>
             </div>
             <button class="btn btn--primary" id="add-task-btn" aria-label="Add new task">
               + Add Task
@@ -280,6 +280,9 @@
               <option value="asc">↑ Asc</option>
               <option value="desc">↓ Desc</option>
             </select>
+
+            <button type="button" class="btn btn--ghost btn--sm" id="reset-filters-btn"
+                    aria-label="Reset all filters and sort">Reset</button>
           </div>
 
           <!-- Task list -->
