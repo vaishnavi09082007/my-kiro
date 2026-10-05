@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/landing.css" />
 
   <!-- Chart.js (pinned version) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous" defer></script>
@@ -47,11 +48,269 @@
 </head>
 
 <body>
+  <!-- ══════════════════════════════════════════════════════
+       LANDING PAGE — shown first, hidden after "Get Started"
+       ══════════════════════════════════════════════════════ -->
+  <div id="landing-page" role="main" aria-label="TaskFlow landing page">
+
+    <!-- ── Hero ─────────────────────────────────────────── -->
+    <section class="lp-hero" aria-labelledby="lp-hero-heading">
+      <div class="lp-hero-bg" aria-hidden="true"></div>
+
+      <!-- Navbar -->
+      <nav class="lp-nav" aria-label="Landing navigation">
+        <a href="#" class="lp-nav-logo" aria-label="TaskFlow home">
+          <div class="lp-nav-logo-icon" aria-hidden="true">⚡</div>
+          <span class="lp-nav-logo-text">TaskFlow</span>
+        </a>
+        <ul class="lp-nav-links">
+          <li><a href="#lp-features">Features</a></li>
+          <li><a href="#lp-how">How it works</a></li>
+        </ul>
+        <div class="lp-nav-cta">
+          <button class="lp-btn-primary" id="lp-nav-get-started" aria-label="Get started with TaskFlow">
+            Get Started →
+          </button>
+        </div>
+      </nav>
+
+      <!-- Hero content -->
+      <div class="lp-hero-content">
+        <div class="lp-badge" aria-label="Version info">
+          <span class="lp-badge-dot" aria-hidden="true"></span>
+          Smart Task Manager — 100% Free, No Sign-up
+        </div>
+
+        <h1 class="lp-hero-title" id="lp-hero-heading">
+          Plan Better.<br/>
+          <span class="lp-gradient-text">Work Smarter.</span>
+        </h1>
+
+        <p class="lp-hero-desc">
+          TaskFlow turns your to-do list into a powerful productivity system.
+          Manage tasks, set smart reminders, visualise your schedule, and track
+          your progress — all in one elegant workspace.
+        </p>
+
+        <div class="lp-hero-actions">
+          <button class="lp-btn-primary" id="lp-get-started-btn" aria-label="Open TaskFlow dashboard">
+            🚀 Get Started — It's Free
+          </button>
+          <a href="#lp-features" class="lp-btn-secondary" aria-label="Explore TaskFlow features">
+            ✦ Explore Features
+          </a>
+        </div>
+      </div>
+
+      <!-- App preview mockup -->
+      <div class="lp-app-preview" aria-hidden="true">
+        <div class="lp-preview-frame">
+          <div class="lp-preview-bar">
+            <div class="lp-preview-dot lp-preview-dot-red"></div>
+            <div class="lp-preview-dot lp-preview-dot-yellow"></div>
+            <div class="lp-preview-dot lp-preview-dot-green"></div>
+            <span class="lp-preview-title">TaskFlow Dashboard</span>
+          </div>
+          <div class="lp-preview-content">
+            <div class="lp-preview-card lp-preview-card-accent-purple">
+              <div class="lp-preview-card-num">12</div>
+              <div class="lp-preview-card-lbl">Total Tasks</div>
+            </div>
+            <div class="lp-preview-card lp-preview-card-accent-green">
+              <div class="lp-preview-card-num">8</div>
+              <div class="lp-preview-card-lbl">Completed</div>
+            </div>
+            <div class="lp-preview-card lp-preview-card-accent-amber">
+              <div class="lp-preview-card-num">3</div>
+              <div class="lp-preview-card-lbl">Pending</div>
+            </div>
+            <div class="lp-preview-card lp-preview-card-accent-red">
+              <div class="lp-preview-card-num">1</div>
+              <div class="lp-preview-card-lbl">Overdue</div>
+            </div>
+          </div>
+          <div class="lp-preview-tasks">
+            <div class="lp-preview-task">
+              <div class="lp-preview-task-dot" style="background:#ef4444"></div>
+              <span class="lp-preview-task-title">Quarterly report draft</span>
+              <span class="lp-preview-task-badge lp-preview-task-badge-high">High</span>
+            </div>
+            <div class="lp-preview-task">
+              <div class="lp-preview-task-dot" style="background:#f59e0b"></div>
+              <span class="lp-preview-task-title">Client presentation slides</span>
+              <span class="lp-preview-task-badge lp-preview-task-badge-med">Medium</span>
+            </div>
+            <div class="lp-preview-task">
+              <div class="lp-preview-task-dot" style="background:#22c55e"></div>
+              <span class="lp-preview-task-title">Update project documentation</span>
+              <span class="lp-preview-task-badge lp-preview-task-badge-low">Low</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="lp-stats" aria-label="Key statistics">
+        <div class="lp-stat">
+          <div class="lp-stat-value">∞</div>
+          <div class="lp-stat-label">Tasks Supported</div>
+        </div>
+        <div class="lp-stat-divider" aria-hidden="true"></div>
+        <div class="lp-stat">
+          <div class="lp-stat-value">3</div>
+          <div class="lp-stat-label">Reminder Levels</div>
+        </div>
+        <div class="lp-stat-divider" aria-hidden="true"></div>
+        <div class="lp-stat">
+          <div class="lp-stat-value">2</div>
+          <div class="lp-stat-label">Schedule Views</div>
+        </div>
+        <div class="lp-stat-divider" aria-hidden="true"></div>
+        <div class="lp-stat">
+          <div class="lp-stat-value">100%</div>
+          <div class="lp-stat-label">Offline & Private</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Features ─────────────────────────────────────── -->
+    <section class="lp-features" id="lp-features" aria-labelledby="lp-features-heading">
+      <div class="lp-section-label" aria-hidden="true">Features</div>
+      <h2 class="lp-section-title" id="lp-features-heading">Everything you need to stay on track</h2>
+      <p class="lp-section-desc">
+        A complete productivity toolkit designed for individuals who want to
+        manage their time without the overhead of complex project management software.
+      </p>
+      <div class="lp-features-grid">
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon lp-feature-icon--purple" aria-hidden="true">✅</div>
+          <h3 class="lp-feature-title">Task Management</h3>
+          <p class="lp-feature-desc">
+            Create, edit, and organise tasks with titles, descriptions, priorities,
+            categories, and due dates. Filter and sort by any field instantly.
+          </p>
+          <div class="lp-feature-tags">
+            <span class="lp-feature-tag">Add &amp; Edit</span>
+            <span class="lp-feature-tag">Priorities</span>
+            <span class="lp-feature-tag">Categories</span>
+          </div>
+        </div>
+
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon lp-feature-icon--amber" aria-hidden="true">⏰</div>
+          <h3 class="lp-feature-title">Smart Reminders</h3>
+          <p class="lp-feature-desc">
+            Live countdown timers on every task. Get reminded at 24 hours,
+            1 hour, and 10 minutes before each deadline — in-app or via browser notifications.
+          </p>
+          <div class="lp-feature-tags">
+            <span class="lp-feature-tag">Live Countdown</span>
+            <span class="lp-feature-tag">3-level Alerts</span>
+            <span class="lp-feature-tag">Browser Notifs</span>
+          </div>
+        </div>
+
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon lp-feature-icon--blue" aria-hidden="true">📅</div>
+          <h3 class="lp-feature-title">Schedule Planner</h3>
+          <p class="lp-feature-desc">
+            View your tasks on a day-by-day or full-week calendar. See exactly
+            what's coming up and navigate across weeks with one click.
+          </p>
+          <div class="lp-feature-tags">
+            <span class="lp-feature-tag">Day View</span>
+            <span class="lp-feature-tag">Week View</span>
+            <span class="lp-feature-tag">Navigation</span>
+          </div>
+        </div>
+
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon lp-feature-icon--green" aria-hidden="true">📊</div>
+          <h3 class="lp-feature-title">Productivity Dashboard</h3>
+          <p class="lp-feature-desc">
+            See your total, completed, pending, and overdue tasks at a glance.
+            Completion charts, weekly activity bars, and category breakdowns keep you motivated.
+          </p>
+          <div class="lp-feature-tags">
+            <span class="lp-feature-tag">Live Stats</span>
+            <span class="lp-feature-tag">Charts</span>
+            <span class="lp-feature-tag">Progress</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── How it works ──────────────────────────────────── -->
+    <section class="lp-how" id="lp-how" aria-labelledby="lp-how-heading">
+      <div class="lp-how-inner">
+        <div class="lp-section-label" aria-hidden="true">How it works</div>
+        <h2 class="lp-section-title" id="lp-how-heading">Up and running in seconds</h2>
+        <p class="lp-section-desc">No account required. Your data stays in your browser.</p>
+
+        <div class="lp-steps">
+          <div class="lp-step">
+            <div class="lp-step-card">
+              <div class="lp-step-icon" aria-hidden="true">🚀</div>
+              <h3 class="lp-step-title">Open &amp; Go</h3>
+              <p class="lp-step-desc">Click "Get Started" to open the dashboard instantly. No sign-up, no install, no waiting.</p>
+            </div>
+          </div>
+          <div class="lp-step">
+            <div class="lp-step-card">
+              <div class="lp-step-icon" aria-hidden="true">✍️</div>
+              <h3 class="lp-step-title">Add Your Tasks</h3>
+              <p class="lp-step-desc">Create tasks with titles, descriptions, due dates, priorities, and categories in one clean form.</p>
+            </div>
+          </div>
+          <div class="lp-step">
+            <div class="lp-step-card">
+              <div class="lp-step-icon" aria-hidden="true">🔔</div>
+              <h3 class="lp-step-title">Stay Reminded</h3>
+              <p class="lp-step-desc">Live countdowns and reminders keep you on top of every deadline without lifting a finger.</p>
+            </div>
+          </div>
+          <div class="lp-step">
+            <div class="lp-step-card">
+              <div class="lp-step-icon" aria-hidden="true">📈</div>
+              <h3 class="lp-step-title">Track Progress</h3>
+              <p class="lp-step-desc">Watch your dashboard fill up with completed tasks and productivity charts that show your momentum.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ───────────────────────────────────────────── -->
+    <section class="lp-cta" aria-labelledby="lp-cta-heading">
+      <div class="lp-cta-inner">
+        <h2 class="lp-cta-title" id="lp-cta-heading">Ready to get organised?</h2>
+        <p class="lp-cta-desc">
+          Join thousands who have replaced messy note apps with TaskFlow.
+          Start free, stay productive.
+        </p>
+        <button class="lp-btn-primary" id="lp-cta-btn" aria-label="Open TaskFlow now">
+          🚀 Open TaskFlow Now — Free Forever
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Footer ────────────────────────────────────────── -->
+    <footer class="lp-footer">
+      <p class="lp-footer-copy">© 2026 TaskFlow. All data stored locally in your browser.</p>
+      <ul class="lp-footer-links" aria-label="Footer links">
+        <li><a href="#lp-features">Features</a></li>
+        <li><a href="#lp-how">How it works</a></li>
+      </ul>
+    </footer>
+
+  </div>
+  <!-- /landing-page -->
+
   <!-- ── App Shell ───────────────────────────────────────── -->
   <div class="app-shell">
 
     <!-- ── Sidebar ─────────────────────────────────────── -->
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar__logo">
         <span class="sidebar__logo-icon" aria-hidden="true">⚡</span>
         <span class="sidebar__logo-text">TaskFlow</span>

@@ -19,9 +19,44 @@ let _filters = {
 };
 let _pendingScheduleDate = null; // pre-fill date when adding from schedule
 
+/* ── Landing page ─────────────────────────────────────────── */
+
+const initLandingPage = () => {
+  const landing = document.getElementById('landing-page');
+  if (!landing) return;
+
+  // If user already visited, skip landing page
+  if (sessionStorage.getItem('tf_visited')) {
+    landing.classList.add('hidden');
+    return;
+  }
+
+  const launchApp = () => {
+    sessionStorage.setItem('tf_visited', '1');
+    landing.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    landing.style.opacity = '0';
+    landing.style.transform = 'scale(0.98)';
+    setTimeout(() => {
+      landing.classList.add('hidden');
+      landing.style.transition = '';
+      landing.style.opacity = '';
+      landing.style.transform = '';
+      // Focus main content for accessibility
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) mainContent.focus();
+    }, 500);
+  };
+
+  // Wire all CTA buttons
+  ['lp-get-started-btn', 'lp-nav-get-started', 'lp-cta-btn'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', launchApp);
+  });
+};
+
 /* ── Boot ─────────────────────────────────────────────────── */
 
 const init = () => {
+  initLandingPage();
   applyTheme();
   updateHeaderDate();
   showSection('section-dashboard');

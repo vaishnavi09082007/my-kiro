@@ -155,13 +155,40 @@ const renderTaskList = (container, tasks, emptyMessage = 'No tasks found.') => {
 
   if (!tasks || tasks.length === 0) {
     const isFirstRun = emptyMessage.includes('first task');
-    container.innerHTML = `
-      <li class="empty-state" style="grid-column:1/-1">
-        <div class="empty-state__emoji">${isFirstRun ? '🚀' : '🔍'}</div>
-        <h3 class="empty-state__title">${isFirstRun ? 'No tasks yet' : 'Nothing here'}</h3>
-        <p class="empty-state__text">${window.TFUtils.escapeHtml(emptyMessage)}</p>
-        ${isFirstRun ? '<button class="btn btn--primary" onclick="document.getElementById(\'add-task-btn\').click()">+ Add Your First Task</button>' : ''}
-      </li>`;
+
+    const li = document.createElement('li');
+    li.className = 'empty-state';
+    li.style.gridColumn = '1/-1';
+
+    const emoji = document.createElement('div');
+    emoji.className = 'empty-state__emoji';
+    emoji.setAttribute('aria-hidden', 'true');
+    emoji.textContent = isFirstRun ? '🚀' : '🔍';
+
+    const heading = document.createElement('h3');
+    heading.className = 'empty-state__title';
+    heading.textContent = isFirstRun ? 'No tasks yet' : 'Nothing here';
+
+    const text = document.createElement('p');
+    text.className = 'empty-state__text';
+    text.textContent = emptyMessage;
+
+    li.appendChild(emoji);
+    li.appendChild(heading);
+    li.appendChild(text);
+
+    if (isFirstRun) {
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn btn--primary';
+      addBtn.textContent = '+ Add Your First Task';
+      // Use addEventListener, never inline onclick
+      addBtn.addEventListener('click', () => {
+        document.getElementById('add-task-btn')?.click();
+      });
+      li.appendChild(addBtn);
+    }
+
+    container.appendChild(li);
     return;
   }
 
