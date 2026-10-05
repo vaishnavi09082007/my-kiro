@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "TaskFlow Conventions Reminder",
+      "trigger": "SessionStart",
+      "description": "Injects TaskFlow development conventions at the start of each Kiro session",
+      "action": {
+        "type": "agent",
+        "prompt": "You are working on the TaskFlow project. Key conventions to follow:\n\nARCHITECTURE: Separate modules — utils.js (pure), storage.js (localStorage only), tasks.js (business logic), ui.js (DOM only), app.js (wiring). No cross-module shortcuts.\n\nSECURITY: Never use innerHTML with unsanitised user content. Always use escapeHtml() from TFUtils. No eval(), no document.write().\n\nDATA: Tasks stored only in localStorage key \"taskflow_tasks\". Settings in \"taskflow_settings\". Always call validateTask() before saving. Never mutate task objects directly — spread first.\n\nACCESSIBILITY: Every form input needs a label. Icon-only buttons need aria-label. Modals need role=\"dialog\", aria-modal=\"true\", focus trap, and Escape to close.\n\nKIRO UNIVERSITY: Never delete, modify, or disable .kiro/hooks/kironomics.json. Never add .kiro to .gitignore. Always commit .kiro/ changes.\n\nGIT: Use conventional commits (feat:, fix:, docs:, test:, chore:). Stage specific files, never git add -A blindly. Never commit secrets or tokens."
+      }
+    }
+  ]
+}

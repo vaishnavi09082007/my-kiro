@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "TaskFlow JS Quality Check",
+      "trigger": "PostFileSave",
+      "description": "Runs a code quality check after saving JavaScript files in the TaskFlow project",
+      "matcher": "\\.js$",
+      "action": {
+        "type": "agent",
+        "prompt": "A JavaScript file was just saved in the TaskFlow project. Perform a quick quality check:\n\n1. Check for any use of innerHTML with unsanitised user content (should use escapeHtml() instead)\n2. Check for console.log() debug statements that should be removed before committing (console.warn is acceptable)\n3. Check for var declarations (should use const/let only)\n4. Check for inline event handlers like onclick=\"\" in dynamically generated HTML (should use addEventListener)\n5. Check for any hardcoded magic strings that belong in constants\n6. Check that any new exported functions have JSDoc comments\n\nIf any issues are found, briefly report them. If the file looks clean, no action needed — do not produce unnecessary output."
+      }
+    }
+  ]
+}
