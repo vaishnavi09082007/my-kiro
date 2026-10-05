@@ -337,6 +337,7 @@ const handleTaskFormSubmit = (e) => {
     }
 
     TFNotifications.clearTaskNotifs(_editingTaskId);
+    TFCountdown.clearOverdueAlert(_editingTaskId);
     tasks = TFTasks.updateTask(tasks, _editingTaskId, {
       title:       data.title.trim(),
       description: (data.description || '').trim(),

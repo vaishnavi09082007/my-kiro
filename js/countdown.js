@@ -6,6 +6,8 @@
 'use strict';
 
 let _timerInterval = null;
+let _taskCache     = [];  // cached task list to avoid localStorage reads every second
+let _overdueAlerted = new Set(); // track tasks we've shown "just became overdue" toast for
 
 /**
  * Calculates time remaining until a deadline.
@@ -35,14 +37,25 @@ const calculateTimeRemaining = (dueDate, dueTime) => {
 };
 
 /**
+ * Refreshes the internal task cache.
+ * Call this whenever tasks change (add/edit/delete/complete).
+ */
+const refreshTaskCache = () => {
+  _taskCache = window.TFStorage.getTasks();
+};
+
+/**
  * Updates all countdown elements in the DOM.
+ * Uses cached tasks — call refreshTaskCache() after any data change.
  */
 const tickCountdowns = () => {
   const elements = document.querySelectorAll('[data-countdown]');
+  if (!elements.length) return;
+
   elements.forEach(el => {
     const taskId = el.dataset.countdown;
-    const tasks  = window.TFStorage.getTasks();
-    const task   = tasks.find(t => t.id === taskId);
+    const task   = _taskCache.find(t => t.id === taskId);
+
     if (!task || task.status === 'completed') {
       el.textContent = '';
       return;
@@ -54,22 +67,32 @@ const tickCountdowns = () => {
     const text = window.TFUI.formatCountdown(tr);
     el.textContent = text;
 
-    // Update CSS class based on urgency
+    // Update CSS classes based on urgency
     el.classList.remove('task-card__countdown--overdue', 'task-card__countdown--soon');
+
     if (tr.overdue) {
       el.classList.add('task-card__countdown--overdue');
-      // Also update the card's overdue styling
+
+      // Update the card's overdue styling if not already done
       const card = el.closest('.task-card');
       if (card && !card.classList.contains('task-card--overdue')) {
         card.classList.add('task-card--overdue');
-        // Update status badge
         const statusBadge = card.querySelector('.badge[class*="status-badge"]');
         if (statusBadge) {
           statusBadge.className = 'badge status-badge--overdue';
           statusBadge.textContent = 'Overdue';
         }
       }
-    } else if (!tr.overdue && tr.days === 0 && tr.hours < 24) {
+
+      // Fire a one-time in-app toast when a task first becomes overdue this session
+      if (!_overdueAlerted.has(taskId)) {
+        _overdueAlerted.add(taskId);
+        window.TFUI.showToast(`"${task.title}" is now overdue!`, 'error', 6000);
+        window.TFNotifications.updateNotifBell(true);
+      }
+
+    } else if (tr.days === 0 && tr.hours < 2) {
+      // Less than 2 hours remaining — show amber
       el.classList.add('task-card__countdown--soon');
     }
   });
@@ -80,7 +103,9 @@ const tickCountdowns = () => {
  * Calling again while running is safe — won't create duplicate intervals.
  */
 const startCountdownTimer = () => {
+  refreshTaskCache();
   if (_timerInterval) return;
+  tickCountdowns(); // immediate first tick
   _timerInterval = setInterval(tickCountdowns, 1000);
 };
 
@@ -96,16 +121,29 @@ const stopCountdownTimer = () => {
 
 /**
  * Restarts the timer (useful after page re-render).
+ * Also refreshes the task cache so new/edited tasks are reflected.
  */
 const restartCountdownTimer = () => {
+  refreshTaskCache();
   stopCountdownTimer();
   startCountdownTimer();
 };
 
+/**
+ * Clears the "just became overdue" alert cache for a task.
+ * Call this when a task is edited (deadline may have changed).
+ * @param {string} taskId
+ */
+const clearOverdueAlert = (taskId) => {
+  _overdueAlerted.delete(taskId);
+};
+
 window.TFCountdown = {
   calculateTimeRemaining,
+  refreshTaskCache,
   startCountdownTimer,
   stopCountdownTimer,
   restartCountdownTimer,
   tickCountdowns,
+  clearOverdueAlert,
 };

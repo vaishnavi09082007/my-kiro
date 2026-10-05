@@ -67,7 +67,7 @@ const showBrowserNotification = (title, body) => {
 
 /**
  * Checks for tasks approaching deadlines and fires reminders.
- * Checks at: 24h before, 1h before.
+ * Checks at: 24h before, 1h before, 10min before.
  */
 const checkReminders = () => {
   const tasks = window.TFStorage.getTasks();
@@ -80,17 +80,18 @@ const checkReminders = () => {
     if (!deadline) return;
 
     const diff = deadline - now;
-    if (diff <= 0) return; // already overdue — handled separately
+    if (diff <= 0) return; // already overdue — handled by countdown.js
 
-    const notifKey24h = `${task.id}:24h`;
-    const notifKey1h  = `${task.id}:1h`;
+    const notifKey24h  = `${task.id}:24h`;
+    const notifKey1h   = `${task.id}:1h`;
+    const notifKey10m  = `${task.id}:10m`;
 
     // 24-hour reminder (fire between 23h50m and 24h10m remaining)
-    if (diff > 23 * 3600000 && diff <= 24.2 * 3600000 && !_notified.has(notifKey24h)) {
+    if (diff > 23.83 * 3600000 && diff <= 24.17 * 3600000 && !_notified.has(notifKey24h)) {
       _notified.add(notifKey24h);
       const msg = `"${task.title}" is due tomorrow.`;
-      showBrowserNotification('TaskFlow Reminder', msg);
-      window.TFUI.showToast(msg, 'warning', 8000);
+      showBrowserNotification('📅 TaskFlow – Tomorrow', msg);
+      window.TFUI.showToast(`🔔 ${msg}`, 'warning', 8000);
       updateNotifBell(true);
     }
 
@@ -98,8 +99,17 @@ const checkReminders = () => {
     if (diff > 55 * 60000 && diff <= 65 * 60000 && !_notified.has(notifKey1h)) {
       _notified.add(notifKey1h);
       const msg = `"${task.title}" is due in about 1 hour.`;
-      showBrowserNotification('TaskFlow Reminder ⏰', msg);
-      window.TFUI.showToast(msg, 'warning', 10000);
+      showBrowserNotification('⏰ TaskFlow – 1 Hour', msg);
+      window.TFUI.showToast(`⏰ ${msg}`, 'warning', 10000);
+      updateNotifBell(true);
+    }
+
+    // 10-minute reminder (fire between 8min and 12min remaining)
+    if (diff > 8 * 60000 && diff <= 12 * 60000 && !_notified.has(notifKey10m)) {
+      _notified.add(notifKey10m);
+      const msg = `"${task.title}" is due in 10 minutes!`;
+      showBrowserNotification('🚨 TaskFlow – 10 Minutes!', msg);
+      window.TFUI.showToast(`🚨 ${msg}`, 'error', 12000);
       updateNotifBell(true);
     }
   });
@@ -126,6 +136,7 @@ const clearNotifBell = () => updateNotifBell(false);
 const clearTaskNotifs = (taskId) => {
   _notified.delete(`${taskId}:24h`);
   _notified.delete(`${taskId}:1h`);
+  _notified.delete(`${taskId}:10m`);
 };
 
 /**
