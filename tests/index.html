@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow – Test Runner</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    body { padding: 32px; max-width: 860px; margin: 0 auto; }
+    h1   { font-size: var(--font-size-xl); margin-bottom: var(--space-2); }
+    .subtitle { color: var(--color-text-muted); margin-bottom: var(--space-8); font-size: var(--font-size-sm); }
+
+    /* Summary bar */
+    .summary {
+      display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap;
+      background: var(--color-bg-secondary); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); padding: var(--space-5) var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .summary__stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .summary__value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); }
+    .summary__label { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+    .summary__value--pass { color: var(--color-success); }
+    .summary__value--fail { color: var(--color-danger); }
+    .summary__value--total{ color: var(--color-accent); }
+    .summary__bar { flex: 1; min-width: 200px; }
+
+    /* Test result rows */
+    .suite-title {
+      font-size: var(--font-size-base); font-weight: var(--font-weight-semibold);
+      margin: var(--space-6) 0 var(--space-3);
+      color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-2);
+    }
+    .test-row {
+      display: flex; align-items: flex-start; gap: var(--space-3);
+      padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
+      font-size: var(--font-size-sm); margin-bottom: 2px;
+    }
+    .test-row--pass { background: rgba(34,197,94,0.06); }
+    .test-row--fail { background: rgba(239,68,68,0.08); border-left: 3px solid var(--color-danger); }
+    .test-row__icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+    .test-row__desc { flex: 1; color: var(--color-text-primary); }
+    .test-row__error { font-size: var(--font-size-xs); color: var(--color-danger); margin-top: 2px; font-family: monospace; }
+    .all-pass-banner {
+      text-align: center; padding: var(--space-8);
+      font-size: var(--font-size-lg); color: var(--color-success);
+    }
+
+    /* Progress bar re-use */
+    .progress-bar { height: 10px; background: var(--color-bg-tertiary); border-radius: var(--radius-full); overflow: hidden; }
+    .progress-bar__fill { height: 100%; background: var(--color-success); border-radius: var(--radius-full); transition: width 0.4s ease; }
+
+    .notice {
+      background: var(--color-bg-secondary); border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-accent); border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5); margin-bottom: var(--space-6);
+      font-size: var(--font-size-sm); color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ TaskFlow – Test Runner</h1>
+  <p class="subtitle">Browser-based unit tests for core logic. Open browser DevTools console for detailed output.</p>
+
+  <div class="notice">
+    ℹ️ Tests run automatically on page load. All tests cover pure functions — no network required.
+    Results also appear in the browser console with full error messages.
+  </div>
+
+  <div class="summary" id="summary">
+    <div class="summary__stat">
+      <div class="summary__value summary__value--total" id="sum-total">–</div>
+      <div class="summary__label">Total</div>
+    </div>
+    <div class="summary__stat">
+      <div class="summary__value summary__value--pass" id="sum-pass">–</div>
+      <div class="summary__label">Passed</div>
+    </div>
+    <div class="summary__stat">
+      <div class="summary__value summary__value--fail" id="sum-fail">–</div>
+      <div class="summary__label">Failed</div>
+    </div>
+    <div class="summary__bar">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-muted);margin-bottom:4px">
+        <span>Pass rate</span><span id="sum-pct">–</span>
+      </div>
+      <div class="progress-bar"><div class="progress-bar__fill" id="sum-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div id="results-container"></div>
+
+  <!-- Load all modules (order matters — same as index.html) -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/tasks.js"></script>
+  <!-- ui.js not needed for pure function tests -->
+  <script src="../js/countdown.js"></script>
+  <script src="../js/dashboard.js"></script>
+
+  <!-- Stub TFUI for modules that reference it (countdown uses showToast) -->
+  <script>
+    window.TFUI = {
+      showToast: () => {},
+      formatCountdown: (tr) => tr ? (tr.overdue ? 'Overdue' : `${tr.days}d ${tr.hours}h`) : '',
+      renderCompactList: () => {},
+      updateProgressBar: () => {},
+    };
+    window.TFNotifications = {
+      updateNotifBell: () => {},
+    };
+  </script>
+
+  <!-- Run tests -->
+  <script src="taskflow.test.js"></script>
+
+  <!-- Render results into the page -->
+  <script>
+    (function renderResults() {
+      const container = document.getElementById('results-container');
+      const data = window._TFTestResults;
+      if (!data) {
+        container.innerHTML = '<p style="color:var(--color-danger)">Test file failed to load.</p>';
+        return;
+      }
+
+      const { passed, failed, total, results } = data;
+      const pct = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+      document.getElementById('sum-total').textContent = total;
+      document.getElementById('sum-pass').textContent  = passed;
+      document.getElementById('sum-fail').textContent  = failed;
+      document.getElementById('sum-pct').textContent   = pct + '%';
+      document.getElementById('sum-bar').style.width   = pct + '%';
+      if (failed > 0) {
+        document.getElementById('sum-bar').style.background = 'var(--color-warning)';
+      }
+
+      if (failed === 0) {
+        container.innerHTML = `<div class="all-pass-banner">🎉 All ${passed} tests passed!</div>`;
+        return;
+      }
+
+      // Group by suite (detect console.group labels embedded in test descriptions via emoji prefix)
+      const suites = {};
+      let currentSuite = 'General';
+      const suiteEmojis = ['📐','✅','🆕','✏️','🗑️','🔄','🚨','🔽','🏷️','🔍','📊','📈','⏱️','💾','📊','📋'];
+
+      results.forEach(r => {
+        // Group tests by rough ordering since we can't hook console.group from here
+        suites[currentSuite] = suites[currentSuite] || [];
+        suites[currentSuite].push(r);
+      });
+
+      // Render all results flat (grouped in console, flat here for simplicity)
+      const failedTests = results.filter(r => !r.pass);
+      const passedTests = results.filter(r =>  r.pass);
+
+      if (failedTests.length > 0) {
+        const h = document.createElement('h2');
+        h.className = 'suite-title';
+        h.textContent = `❌ Failed Tests (${failedTests.length})`;
+        container.appendChild(h);
+
+        failedTests.forEach(r => {
+          const row = document.createElement('div');
+          row.className = 'test-row test-row--fail';
+          row.innerHTML = `
+            <span class="test-row__icon">❌</span>
+            <div>
+              <div class="test-row__desc">${escapeForPage(r.description)}</div>
+              <div class="test-row__error">${escapeForPage(r.error || '')}</div>
+            </div>`;
+          container.appendChild(row);
+        });
+      }
+
+      const h2 = document.createElement('h2');
+      h2.className = 'suite-title';
+      h2.textContent = `✅ Passed Tests (${passedTests.length})`;
+      container.appendChild(h2);
+
+      passedTests.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'test-row test-row--pass';
+        row.innerHTML = `
+          <span class="test-row__icon">✅</span>
+          <span class="test-row__desc">${escapeForPage(r.description)}</span>`;
+        container.appendChild(row);
+      });
+
+      function escapeForPage(str) {
+        return String(str || '')
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+    })();
+  </script>
+</body>
+</html>
