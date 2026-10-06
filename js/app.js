@@ -651,6 +651,17 @@ const wireSchedulePage = () => {
     updateScheduleViewBtns();
     renderScheduleView();
   });
+
+  // Mobile "show all days" toggle for week view
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'schedule-show-all-btn') {
+      const grid = document.getElementById('week-grid');
+      if (grid) {
+        const expanded = grid.classList.toggle('show-all');
+        e.target.textContent = expanded ? 'Today only' : 'Show all days';
+      }
+    }
+  });
 };
 
 const updateScheduleViewBtns = () => {

@@ -161,4 +161,6 @@
 @media (max-width: 640px) {
   .lp-nav-links { display: none; }
   .lp-hero-content { padding-top: 48px; }
+  /* Show the "show all days" toggle only on mobile */
+  #schedule-show-all-btn { display: inline-flex !important; }
 }
