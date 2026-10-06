@@ -257,6 +257,17 @@ const wireTaskModal = () => {
   // Form submit
   document.getElementById('task-form')?.addEventListener('submit', handleTaskFormSubmit);
 
+  // Wire character counter on title input
+  const titleInput = document.getElementById('task-title');
+  const titleCount = document.getElementById('task-title-count');
+  if (titleInput && titleCount) {
+    titleInput.addEventListener('input', () => {
+      const len = titleInput.value.length;
+      titleCount.textContent = `${len}/200`;
+      titleCount.style.color = len > 180 ? 'var(--color-warning)' : '';
+    });
+  }
+
   // dueTime validation: disable if no dueDate
   const dueDateInput = document.getElementById('task-dueDate');
   const dueTimeInput = document.getElementById('task-dueTime');

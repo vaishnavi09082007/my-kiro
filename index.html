@@ -8,7 +8,545 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/layout.css" />Build my Kiro University project as a polished web application called:
+
+TASKFLOW – SMART TASK MANAGER & SCHEDULE PLANNER
+
+IMPORTANT REPOSITORY RULES:
+- Current repository: D:\my-kiro
+- Keep the existing Git repository.
+- Keep the existing .kiro folder.
+- NEVER delete or replace .kiro.
+- NEVER add .kiro to .gitignore.
+- Keep existing Kiro University hooks, steering files and custom agent.
+- Do not create another Git repository.
+- Do not expose or commit tokens, passwords, API keys or secrets.
+- Use the existing GitHub remote.
+- Work sequentially.
+- After EVERY completed phase:
+  1. test the changes
+  2. inspect git diff
+  3. git status
+  4. git add only the intended files
+  5. create a meaningful commit
+  6. git push origin master
+  7. verify the push succeeded
+  Then continue to the next phase.
+- Never create empty or meaningless commits.
+- Do not wait for my confirmation between phases unless you are genuinely blocked.
+- Do not claim a Kiro University lesson is complete without real evidence.
+
+CURRENT KIRO UNIVERSITY STATUS:
+Already completed:
+- Steering documents
+- Hooks
+- Custom agent
+
+Still need to complete:
+- Spec-driven development
+- Property-based testing
+- Powers
+- MCP
+
+==================================================
+PHASE 1 — SPEC-DRIVEN DEVELOPMENT
+==================================================
+
+First inspect the existing repository and existing .kiro configuration.
+
+Do NOT recreate existing steering, hooks or custom agent.
+
+Create a proper TaskFlow specification using Kiro's spec-driven development structure.
+
+The specification must contain:
+
+1. Problem statement
+2. Target users
+3. Goals
+4. User stories
+5. Functional requirements
+6. Non-functional requirements
+7. UI requirements
+8. Data model
+9. Validation rules
+10. Acceptance criteria
+
+TaskFlow requirements:
+
+TASKS:
+- Add task
+- Edit task
+- Delete task
+- Complete/reopen task
+- Task title
+- Description
+- Priority: Low/Medium/High
+- Category
+- Due date
+- Due time
+- Status
+- Search
+- Filter
+- Sort
+
+TIME REMAINDER:
+- Show remaining days
+- hours
+- minutes
+- seconds
+- Stop countdown when task is completed
+- Show Overdue when deadline passes
+- Highlight urgent tasks
+- Provide in-app reminders
+- Use browser notifications only when supported and permitted
+
+SCHEDULE PLANNER:
+- Daily view
+- Weekly view
+- Previous/next navigation
+- Today button
+- Tasks arranged according to date/time
+- Create task from schedule
+- Open task details from schedule
+
+DASHBOARD:
+- Total tasks
+- Completed tasks
+- Pending tasks
+- Overdue tasks
+- High priority tasks
+- Today's tasks
+- Upcoming tasks
+- Completion percentage
+- Productivity statistics
+- Useful charts
+
+DATA:
+Use localStorage for the MVP unless the existing repository already contains a suitable backend.
+
+RESPONSIVE:
+- Desktop
+- Tablet
+- Mobile
+
+ACCESSIBILITY:
+- Semantic HTML
+- Labels
+- Keyboard accessibility
+- Clear validation
+- Good contrast
+
+After creating the specification, implement only the specification foundation.
+
+Run validation.
+
+Commit:
+"docs: add TaskFlow specification"
+
+Push to origin/master.
+
+==================================================
+PHASE 2 — APPLICATION FOUNDATION
+==================================================
+
+Implement the TaskFlow application according to the specification.
+
+Use the simplest maintainable technology already available in the repository.
+
+If no framework is required, use:
+- HTML
+- CSS
+- JavaScript
+
+Create a professional dashboard UI.
+
+Main navigation:
+- Dashboard
+- Tasks
+- Schedule
+- Completed
+- Settings
+
+Dashboard:
+- Summary cards
+- Today's tasks
+- Upcoming tasks
+- Overdue tasks
+- Completion progress
+- Productivity chart
+
+Tasks:
+- Add Task
+- Edit
+- Delete
+- Complete
+- Priority
+- Category
+- Date
+- Time
+- Search
+- Filter
+- Sort
+
+Schedule:
+- Daily planner
+- Weekly planner
+- Time-based task display
+
+Make the UI responsive and polished.
+
+Test the application.
+
+Commit:
+"feat: build TaskFlow application foundation"
+
+Push.
+
+==================================================
+PHASE 3 — TASK MANAGEMENT
+==================================================
+
+Implement and test:
+
+- Add task
+- Edit task
+- Delete task
+- Complete task
+- Reopen task
+- Priority
+- Category
+- Description
+- Due date
+- Due time
+- Search
+- Filter
+- Sort
+- Validation
+
+Persist task data.
+
+Handle:
+- empty state
+- invalid input
+- missing date/time
+- completed tasks
+- overdue tasks
+- browser refresh
+
+Test all functionality.
+
+Commit:
+"feat: implement TaskFlow task management"
+
+Push.
+
+==================================================
+PHASE 4 — COUNTDOWN AND REMINDERS
+==================================================
+
+Implement a real-time countdown for every upcoming task:
+
+Days : Hours : Minutes : Seconds
+
+Requirements:
+- update automatically
+- show Overdue after deadline
+- no negative countdown
+- completed tasks stop countdown
+- urgent tasks are visually highlighted
+- in-app reminder
+- browser notification only if supported and permission is granted
+
+Test time calculations carefully.
+
+Commit:
+"feat: add task countdown and reminders"
+
+Push.
+
+==================================================
+PHASE 5 — SCHEDULE PLANNER
+==================================================
+
+Implement:
+
+DAILY:
+- selected date
+- tasks sorted by time
+
+WEEKLY:
+- Monday through Sunday
+- scheduled tasks
+
+Controls:
+- previous
+- next
+- today
+
+Allow creating a task from the planner.
+
+Keep planner and task list synchronized.
+
+Test date/time handling.
+
+Commit:
+"feat: add daily and weekly schedule planner"
+
+Push.
+
+==================================================
+PHASE 6 — DASHBOARD
+==================================================
+
+Calculate all dashboard statistics from real task data.
+
+Show:
+- total
+- completed
+- pending
+- overdue
+- high priority
+- today's tasks
+- upcoming tasks
+- completion percentage
+
+Add simple useful charts.
+
+Do NOT use fake statistics.
+
+Dashboard must update whenever task data changes.
+
+Test dashboard calculations.
+
+Commit:
+"feat: add TaskFlow dashboard analytics"
+
+Push.
+
+==================================================
+PHASE 7 — PROPERTY-BASED TESTING
+==================================================
+
+Now specifically complete the Property-Based Testing Kiro University lesson.
+
+Inspect the available testing environment and tools.
+
+Use property-based testing where genuinely appropriate.
+
+Create tests for pure logic such as:
+
+1. Completion percentage is always between 0 and 100.
+2. Filtering never returns tasks that violate the selected filter.
+3. Sorting preserves the number of tasks.
+4. Countdown calculations behave consistently for valid dates.
+5. Completed tasks cannot be considered pending.
+6. Overdue detection is consistent with the current time.
+7. Adding/removing tasks preserves valid task structure.
+
+Use an appropriate property-based testing library only if suitable for this project.
+
+Do not create fake property tests.
+
+Run the complete test suite.
+
+Document how property-based testing was used.
+
+Commit:
+"test: add property-based tests for TaskFlow"
+
+Push.
+
+After this phase, tell me:
+PROPERTY-BASED TESTING: READY FOR MANUAL CHECKLIST TICK
+
+==================================================
+PHASE 8 — KIRO POWERS
+==================================================
+
+Now specifically complete the Powers lesson.
+
+Inspect the Kiro environment for available Powers.
+
+Choose a Power that is genuinely useful for this TaskFlow project.
+
+Use it meaningfully during development.
+
+Do not pretend to use a Power.
+
+If no suitable Power is available, explain what is available and what prevents using it.
+
+If a Power is used:
+- document its name
+- explain what it did
+- show how it helped the project
+- keep the evidence in the repository where appropriate
+
+Run validation.
+
+Commit:
+"docs: document meaningful Kiro Power usage"
+
+Push.
+
+After this phase, tell me:
+POWERS: READY FOR MANUAL CHECKLIST TICK
+OR
+POWERS: NOT AVAILABLE — EXPLAIN WHY
+
+==================================================
+PHASE 9 — MCP
+==================================================
+
+Now specifically complete the Model Context Protocol lesson.
+
+Inspect available MCP integrations in the Kiro environment.
+
+Choose an MCP server/integration that genuinely helps this project.
+
+Use it for a real development task.
+
+Do NOT add MCP only for points.
+
+Document:
+- MCP used
+- why it was selected
+- what task it performed
+- what result it produced
+- how it improved development
+
+Do not expose credentials or secrets.
+
+If MCP cannot be configured in this environment, clearly document the limitation instead of pretending it was used.
+
+Validate the project.
+
+Commit:
+"feat: add meaningful MCP workflow"
+
+Push.
+
+After this phase, tell me:
+MCP: READY FOR MANUAL CHECKLIST TICK
+OR
+MCP: NOT AVAILABLE — EXPLAIN WHY
+
+==================================================
+PHASE 10 — FINAL TESTING
+==================================================
+
+Run a complete quality review.
+
+Test:
+
+TASKS
+- add
+- edit
+- delete
+- complete
+- reopen
+- search
+- filter
+- sort
+
+TIME
+- countdown
+- overdue
+- reminders
+
+SCHEDULE
+- daily
+- weekly
+- navigation
+- task creation
+
+DASHBOARD
+- statistics
+- completion percentage
+- charts
+
+DATA
+- persistence
+- refresh
+- invalid data
+
+UI
+- desktop
+- tablet
+- mobile
+- accessibility
+- empty states
+- error states
+
+Fix important bugs.
+
+Do not introduce unnecessary changes.
+
+Commit:
+"chore: complete TaskFlow final testing"
+
+Push.
+
+==================================================
+PHASE 11 — FINAL GITHUB CHECK
+==================================================
+
+Run:
+
+git status
+git log --oneline -15
+git remote -v
+git ls-tree -r HEAD .kiro
+
+Verify:
+
+- working tree clean
+- origin/master is up to date
+- .kiro is tracked
+- University hooks still exist
+- steering documents still exist
+- custom agent still exists
+- no secrets are committed
+
+If anything is wrong, fix it, test it, commit it and push it.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Give me a simple final report:
+
+PROJECT:
+TaskFlow – Smart Task Manager & Schedule Planner
+
+FEATURES:
+- list implemented features
+
+KIRO UNIVERSITY:
+- Spec-driven development: READY / NOT READY
+- Steering documents: ALREADY COMPLETE
+- Hooks: ALREADY COMPLETE
+- Property-based testing: READY / NOT READY
+- Powers: READY / NOT READY
+- MCP: READY / NOT READY
+- Custom agents: ALREADY COMPLETE
+
+GITHUB:
+- latest commit
+- branch
+- push status
+- working tree status
+
+CHECKLIST:
+Clearly separate:
+[AUTO VERIFIED]
+[READY FOR ME TO TICK]
+[MANUAL ACTION REQUIRED]
+
+Do NOT tick or claim manual checklist items for me.
+
+The remaining manual submission items such as demo video, public LinkedIn/X post, entry form, and stopping commits after submission must be clearly explained to me.
+
+Start with PHASE 1 and continue sequentially.
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/landing.css" />
@@ -131,13 +669,16 @@
               <div class="lp-preview-card-lbl">Pending</div>
             </div>
             <div class="lp-preview-card lp-preview-card-accent-red">
-              <div class="lp-preview-card-num">1</div>
-              <div class="lp-preview-card-lbl">Overdue</div>
-            </div>
+        <div class="form-group">
+          <label class="form-label" for="task-title">Title <span class="required" aria-hidden="true">*</span></label>
+          <input type="text" id="task-title" name="title" class="form-input"
+                 placeholder="What needs to be done?" maxlength="200" required
+                 aria-required="true" aria-describedby="task-title-error task-title-count" />
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="form-error" id="task-title-error" data-error="title" role="alert"></span>
+            <span id="task-title-count" class="form-hint" style="text-align:right">0/200</span>
           </div>
-          <div class="lp-preview-tasks">
-            <div class="lp-preview-task">
-              <div class="lp-preview-task-dot" style="background:#ef4444"></div>
+        </div><div class="lp-preview-task-dot" style="background:#ef4444"></div>
               <span class="lp-preview-task-title">Quarterly report draft</span>
               <span class="lp-preview-task-badge lp-preview-task-badge-high">High</span>
             </div>
