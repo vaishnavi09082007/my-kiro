@@ -862,3 +862,15 @@
 .week-day:hover {
   border-color: rgba(99,102,241,0.25);
 }
+
+/* ── Urgent task highlight (< 1 hour remaining) ───────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .task-card--urgent {
+    animation: urgentPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes urgentPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    50%       { box-shadow: 0 0 0 4px rgba(245,158,11,0.25); }
+  }
+}

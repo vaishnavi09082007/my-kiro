@@ -92,8 +92,20 @@ const tickCountdowns = () => {
       }
 
     } else if (tr.days === 0 && tr.hours < 2) {
-      // Less than 2 hours remaining — show amber
+      // Less than 2 hours remaining — show amber/urgent
       el.classList.add('task-card__countdown--soon');
+
+      // Add urgent pulse class to the card when < 1 hour
+      const card = el.closest('.task-card');
+      if (card && tr.days === 0 && tr.hours === 0) {
+        card.classList.add('task-card--urgent');
+      } else if (card) {
+        card.classList.remove('task-card--urgent');
+      }
+    } else {
+      // Remove urgent class if time extends (edge case: task edited)
+      const card = el.closest('.task-card');
+      if (card) card.classList.remove('task-card--urgent');
     }
   });
 };
