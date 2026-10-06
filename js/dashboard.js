@@ -55,10 +55,28 @@ const updateDashboardLists = (stats) => {
   const todayEl    = document.getElementById('dash-today-list');
   const upcomingEl = document.getElementById('dash-upcoming-list');
   const overdueEl  = document.getElementById('dash-overdue-list');
+  const remindersEl = document.getElementById('dash-reminders-list');
 
   if (todayEl)    window.TFUI.renderCompactList(todayEl,    stats.todayList,   'No tasks due today 🎉');
   if (upcomingEl) window.TFUI.renderCompactList(upcomingEl, stats.upcomingList, 'No upcoming tasks in the next 7 days');
   if (overdueEl)  window.TFUI.renderCompactList(overdueEl,  stats.overdueList,  stats.overdueList.length === 0 ? 'All caught up! No overdue tasks 🎉' : '');
+
+  // Reminders: tasks due within 24 hours that are not completed
+  if (remindersEl) {
+    const tasks = window.TFStorage.getTasks();
+    const now   = Date.now();
+    const in24h = now + 24 * 3600 * 1000;
+    const reminders = tasks.filter(t => {
+      if (t.status === 'completed' || !t.dueDate) return false;
+      const d = window.TFUtils.parseDateTime(t.dueDate, t.dueTime);
+      return d && d.getTime() > now && d.getTime() <= in24h;
+    }).sort((a, b) => {
+      const da = window.TFUtils.parseDateTime(a.dueDate, a.dueTime);
+      const db = window.TFUtils.parseDateTime(b.dueDate, b.dueTime);
+      return da - db;
+    });
+    window.TFUI.renderCompactList(remindersEl, reminders, 'No tasks due in the next 24 hours ✓');
+  }
 };
 
 /**
