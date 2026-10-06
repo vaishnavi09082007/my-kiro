@@ -1,17 +1,11 @@
 ﻿{
   "mcpServers": {
     "fetch": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@tokenizin/mcp-npx-fetch"
-      ],
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
       "disabled": false,
       "autoApprove": [
-        "fetch_txt",
-        "fetch_markdown",
-        "fetch_html",
-        "fetch_json"
+        "fetch"
       ]
     }
   }
