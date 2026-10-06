@@ -121,3 +121,44 @@
 
 @media (max-width: 1200px) { .week-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 900px)  { .week-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Additional responsive fixes ─────────────────────────── */
+
+/* Prevent stat cards from overflowing on very small screens */
+@media (max-width: 360px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .dashboard-row { grid-template-columns: 1fr; }
+}
+
+/* Ensure modals don't cause horizontal scroll */
+@media (max-width: 600px) {
+  .modal__header,
+  .modal__body,
+  .modal__footer {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+/* Fix chart-grid on narrow tablets */
+@media (max-width: 860px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+/* Sidebar mobile drawer — ensure it sits above overlay */
+@media (max-width: 768px) {
+  .sidebar {
+    z-index: calc(var(--z-sidebar) + 10);
+  }
+  /* Sticky header stays below sidebar on mobile */
+  .app-header {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Landing page nav — hide links on small screens */
+@media (max-width: 640px) {
+  .lp-nav-links { display: none; }
+  .lp-hero-content { padding-top: 48px; }
+}

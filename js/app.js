@@ -85,9 +85,11 @@ const init = () => {
 
 const applyTheme = () => {
   const settings = TFStorage.getSettings();
-  document.documentElement.setAttribute('data-theme', settings.theme || 'dark');
-  const toggle = document.getElementById('theme-toggle');
-  if (toggle) toggle.checked = settings.theme === 'light';
+  const theme = settings.theme || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  // sync settings page toggle if it exists
+  const toggle = document.getElementById('settings-theme');
+  if (toggle) toggle.checked = theme === 'light';
 };
 
 /* ── Header date ──────────────────────────────────────────── */
