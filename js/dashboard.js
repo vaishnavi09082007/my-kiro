@@ -28,6 +28,10 @@ const updateStatCards = (stats) => {
   set('stat-today',     stats.today);
   set('stat-pct',       `${stats.percentage}%`);
 
+  // This-week card
+  const weekEl = document.getElementById('stat-this-week');
+  if (weekEl) weekEl.textContent = stats.thisWeek ?? 0;
+
   // Progress bar
   window.TFUI.updateProgressBar('progress-fill', 'progress-pct', stats.percentage);
 
