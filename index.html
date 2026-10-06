@@ -16,31 +16,37 @@
   <!-- Chart.js (pinned version) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous" defer></script>
 
-  <!-- Extra schedule task styles (inlined here to keep component file clean) -->
+  <!-- Extra schedule task styles -->
   <style>
     .schedule-task {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: var(--radius-sm);
       background: var(--color-bg-tertiary);
       cursor: pointer;
       font-size: var(--font-size-xs);
       border-left: 3px solid var(--color-border);
-      transition: background-color 0.15s ease;
+      border: 1px solid var(--color-border-subtle);
+      border-left: 3px solid var(--color-border);
+      transition: all 0.15s ease;
     }
-    .schedule-task:hover { background-color: var(--color-bg-primary); }
+    .schedule-task:hover {
+      background: rgba(99,102,241,0.08);
+      border-color: rgba(99,102,241,0.2);
+      border-left-color: inherit;
+    }
     .schedule-task:focus-visible { outline: 2px solid var(--color-accent); }
-    .schedule-task--low    { border-left-color: var(--color-success); }
-    .schedule-task--medium { border-left-color: var(--color-warning); }
-    .schedule-task--high   { border-left-color: var(--color-danger); }
-    .schedule-task--overdue   { background-color: var(--color-danger-light); }
+    .schedule-task--low    { border-left-color: var(--color-success) !important; }
+    .schedule-task--medium { border-left-color: var(--color-warning) !important; }
+    .schedule-task--high   { border-left-color: var(--color-danger)  !important; }
+    .schedule-task--overdue   { background: var(--color-danger-light); }
     .schedule-task--completed { opacity: 0.5; }
-    .schedule-task__time  { color: var(--color-text-muted); min-width: 42px; flex-shrink: 0; }
+    .schedule-task__time  { color: var(--color-text-muted); min-width: 48px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
     .schedule-task__info  { flex: 1; overflow: hidden; }
     .schedule-task__title { font-weight: var(--font-weight-medium); color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .schedule-task__cat   { color: var(--color-text-muted); font-size: 10px; }
+    .schedule-task__cat   { color: var(--color-text-muted); font-size: 10px; margin-top: 1px; }
     .schedule-day-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
     .schedule-day-name    { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); }
     .schedule-tasks-list  { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -312,7 +318,7 @@
     <!-- ── Sidebar ─────────────────────────────────────── -->
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar__logo">
-        <span class="sidebar__logo-icon" aria-hidden="true">⚡</span>
+        <div class="sidebar__logo-icon" aria-hidden="true">⚡</div>
         <span class="sidebar__logo-text">TaskFlow</span>
       </div>
 
